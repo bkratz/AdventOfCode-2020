@@ -14,6 +14,7 @@
         <module>day05-java</module>
         <module>day06-java</module>
         <module>day07-java</module>
+        <module>day08-java</module>
     </modules>
     <packaging>pom</packaging>
 
