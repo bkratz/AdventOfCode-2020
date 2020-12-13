@@ -19,7 +19,7 @@ public class EncodingError {
     private final Path path =
             Paths.get(Objects.requireNonNull(this.getClass().getClassLoader().getResource("input.txt")).getFile());
 
-    public long processPart1() throws IOException {
+    long processPart1() throws IOException {
         final List<Long> lines = Files.readAllLines(path).stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
@@ -27,7 +27,7 @@ public class EncodingError {
         return processInputPart1(lines, 25);
     }
 
-    public long processPart2(long targetSum) throws IOException {
+    long processPart2(long targetSum) throws IOException {
         final List<Long> lines = Files.readAllLines(path).stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
@@ -35,21 +35,7 @@ public class EncodingError {
         return processInputPart2(lines, targetSum);
     }
 
-    public Set<Long> calculatePossibleSums(final List<Long> input, final int preamble, final int startIndex) {
-        Set<Long> results = new HashSet<>();
-
-        IntStream.range(startIndex, startIndex + preamble - 1)
-                .forEach(i -> IntStream.range(i + 1, startIndex + preamble)
-                        .forEach(j -> {
-                            if (!input.get(i).equals(input.get(j))) {
-                                results.add(input.get(i) + input.get(j));
-                            }
-                        })
-                );
-        return results;
-    }
-
-    public long processInputPart1(final List<Long> input, final int preamble) {
+    long processInputPart1(final List<Long> input, final int preamble) {
         int index = IntStream.range(preamble, input.size())
                 .filter(i -> !calculatePossibleSums(input, preamble, i - preamble).contains(input.get(i)))
                 .findFirst()
@@ -58,7 +44,7 @@ public class EncodingError {
         return input.get(index);
     }
 
-    public long processInputPart2(final List<Long> input, final long targetSum) {
+    long processInputPart2(final List<Long> input, final long targetSum) {
         int windowIndexToExclusive = 2;
         int windowIndexFrom = 0;
         long[] inputArray = input.stream().mapToLong(l -> l).toArray();
@@ -71,9 +57,23 @@ public class EncodingError {
             windowIndexToExclusive++;
             if (windowSum > targetSum) {
                 windowIndexToExclusive = 2 + ++windowIndexFrom;
-                windowIndexFrom = windowIndexToExclusive-2;
+                windowIndexFrom = windowIndexToExclusive - 2;
             }
         } while (windowIndexToExclusive < input.size());
         return -1L;
+    }
+
+    Set<Long> calculatePossibleSums(final List<Long> input, final int preamble, final int startIndex) {
+        Set<Long> results = new HashSet<>();
+
+        IntStream.range(startIndex, startIndex + preamble - 1)
+                .forEach(i -> IntStream.range(i + 1, startIndex + preamble)
+                        .forEach(j -> {
+                            if (!input.get(i).equals(input.get(j))) {
+                                results.add(input.get(i) + input.get(j));
+                            }
+                        })
+                );
+        return results;
     }
 }
