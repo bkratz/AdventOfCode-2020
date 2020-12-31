@@ -11,6 +11,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class DockingData {
 
@@ -27,7 +32,12 @@ public class DockingData {
         return processInputPart1(lines);
     }
 
-    long mask(final long number, final String mask) {
+    long processPart2() throws IOException {
+        final List<String> lines = Files.readAllLines(path);
+        return processInputPart2(lines);
+    }
+
+    long maskPart1(final long number, final String mask) {
 
         String maskForOr = mask.replaceAll("X", "0");
         String maskForAnd = mask.replaceAll("X", "1");
@@ -37,6 +47,30 @@ public class DockingData {
 
         return ((number | or) & and);
     }
+
+    String maskPart2(final long address, final String mask) {
+        String addressBinaryString = Long.toBinaryString(address);
+        addressBinaryString = StringUtils.leftPad(addressBinaryString, 36, "0");
+
+        String result = StringUtils.leftPad("", 36, "0");
+
+        final char[] maskChars = mask.toCharArray();
+        char[] resultChars = result.toCharArray();
+
+        for (int i=0; i<maskChars.length; i++) {
+            resultChars[i] = addressBinaryString.charAt(i);
+            if (maskChars[i] == '1') {
+                resultChars[i] = '1';
+            }
+            if (maskChars[i] =='X') {
+                resultChars[i] = 'X';
+            }
+        }
+
+        return String.valueOf(resultChars);
+
+    }
+
 
     void processInputGroupPart1(final List<String> inputGroup) {
         String mask = inputGroup.get(0).split("mask = ")[1];
@@ -48,16 +82,42 @@ public class DockingData {
                 long memPosition = Long.parseLong(m.group(1));
                 long value = Long.parseLong(m.group(2));
 
-                long result = mask(value, mask);
+                long result = maskPart1(value, mask);
                 mem.put(memPosition, result);
             }
         }
     }
 
+    void processInputGroupPart2(final List<String> inputGroup) {
+        String mask = inputGroup.get(0).split("mask = ")[1];
+
+        for (int i = 1; i < inputGroup.size(); i++) {
+            Matcher m = pattern.matcher(inputGroup.get(i));
+
+            if (m.find()) {
+                long memPosition = Long.parseLong(m.group(1));
+                long value = Long.parseLong(m.group(2));
+
+                final String addressMask = maskPart2(memPosition, mask);
+                final List<String> addresses = findAddressesPart2(addressMask);
+                addresses.forEach(address -> mem.put(Long.parseLong(address, 2), value));
+            }
+        }
+    }
+
+
     long processInputPart1(final List<String> input) {
         List<List<String>> groups = findInputGroups(input);
 
         groups.forEach(this::processInputGroupPart1);
+
+        return mem.values().stream().mapToLong(l -> l).sum();
+    }
+
+    long processInputPart2(final List<String> input) {
+        List<List<String>> groups = findInputGroups(input);
+
+        groups.forEach(this::processInputGroupPart2);
 
         return mem.values().stream().mapToLong(l -> l).sum();
     }
@@ -79,5 +139,27 @@ public class DockingData {
             groups.add(List.copyOf(group));
         }
         return groups;
+    }
+
+    public List<String> findAddressesPart2(final String addressMask) {
+        int countX = StringUtils.countMatches(addressMask, 'X');
+
+        List<String> result = new ArrayList<>();
+        final int pow = (int)Math.pow(2, countX);
+
+        final List<String> collect =
+                IntStream.range(0, pow).mapToObj(i -> StringUtils.leftPad(Integer.toBinaryString(i), countX, "0"))
+                        .collect(Collectors.toList());
+
+        for (int i=0; i<pow; i++) {
+            final String[] split = collect.get(i).split("");
+            String regexMask = addressMask;
+            for (int j=0; j<countX; j++) {
+                regexMask = RegExUtils.replaceFirst(regexMask, "X", split[j]);
+            }
+            result.add(regexMask);
+        }
+
+        return result;
     }
 }
