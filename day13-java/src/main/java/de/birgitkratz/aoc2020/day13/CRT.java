@@ -1,7 +1,6 @@
 package de.birgitkratz.aoc2020.day13;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 // see: https://github.com/atwing/chinese-remainder-theorem/blob/master/CRT.java

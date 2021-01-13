@@ -137,98 +137,65 @@ public class SeatingSystem {
         int row = seatIndex / cols;
         int col = seatIndex - (row * cols);
 
-        if ((row - 1) >= 0) {
-            if ((col - 1) >= 0) {
-                result.add(seatIndex - (cols + 1));
-            }
+        int iMin = Integer.max(row - 1, 0);
+        int iMax = Integer.min(row + 1, rows-1);
 
-            result.add(seatIndex - cols);
+        int kMin = Integer.max(col - 1, 0);
+        int kMax = Integer.min(col + 1, cols-1);
 
-            if ((col + 1) < cols) {
-                result.add(seatIndex - (cols - 1));
-            }
+        for (int i = iMin; i<= iMax; i++) {
+           for (int k = kMin; k<=kMax; k++) {
+               result.add(toSeatIndex(i, k, cols));
+           }
         }
+        return result.stream().filter(si -> si != seatIndex).collect(Collectors.toList());
+    }
 
-        if ((col - 1) >= 0) {
-            result.add(seatIndex - 1);
-        }
-        if ((col + 1) < cols) {
-            result.add(seatIndex + 1);
-        }
-
-        if ((row + 1) < rows) {
-            if ((col - 1) >= 0) {
-                result.add(seatIndex + (cols - 1));
-            }
-
-            result.add(seatIndex + cols);
-
-            if ((col + 1) < cols) {
-                result.add(seatIndex + (cols + 1));
-            }
-        }
-
-        return result;
+    private Integer toSeatIndex(final int i, final int k, final int cols) {
+        return i * cols + k;
     }
 
     List<List<Integer>> findAdjacentSeatIndicesPart2(final int seatIndex, final int rows, final int cols) {
         int row = seatIndex / cols;
         int col = seatIndex - (row * cols);
 
-        List<List<Integer>> result = new ArrayList<>();
+        int rounds = IntStream.of(row, col, rows-row, cols-col).max().getAsInt();
 
-        // waagerecht
-        List<Integer> subResult = new ArrayList<>();
-        for (int i = col - 1; i >= 0; i--) {
-            subResult.add(row * cols + i);
-        }
-        result.add(subResult);
-        subResult = new ArrayList<>();
-        for (int i = col + 1; i < cols; i++) {
-            subResult.add(row * cols + i);
-        }
-        result.add(subResult);
-        subResult = new ArrayList<>();
+        List<Integer> wl = new ArrayList<>();
+        List<Integer> wr = new ArrayList<>();
+        List<Integer> so = new ArrayList<>();
+        List<Integer> su = new ArrayList<>();
+        List<Integer> dlo = new ArrayList<>();
+        List<Integer> dro = new ArrayList<>();
+        List<Integer> dlu = new ArrayList<>();
+        List<Integer> dru = new ArrayList<>();
 
-        // senkrecht
-        for (int i = row - 1; i >= 0; i--) {
-            subResult.add(i * cols + col);
+        for (int i=1; i<=rounds; i++) {
+            if (col-i >=0) {
+                wl.add(row * cols + (col-i));
+            }
+            if (col+i < cols) {
+                wr.add(row * cols + (col+i));
+            }
+            if (row-i >=0) {
+                so.add((row-i) * cols + col);
+            }
+            if (row+i < rows) {
+                su.add((row+i) * cols + col);
+            }
+            if (col-i >= 0 && row-i >=0) {
+                dlo.add((row - i) * cols + (col - i));
+            }
+            if (row+i < rows && col+i < cols) {
+                dru.add((row +i) * cols + (col+i));
+            }
+            if (row-i >=0 && col+i < cols) {
+                dro.add((row-i) * cols + (col+i));
+            }
+            if (row+i < rows && col-i >=0) {
+                dlu.add((row+i) * cols + (col-i));
+            }
         }
-        result.add(subResult);
-        subResult = new ArrayList<>();
-        for (int i = row + 1; i < rows; i++) {
-            subResult.add(i * cols + col);
-        }
-        result.add(subResult);
-        subResult = new ArrayList<>();
-
-        // from seatIndex to upper left
-        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
-            subResult.add(i * cols + j);
-        }
-        result.add(subResult);
-        subResult = new ArrayList<>();
-
-        // from seatIndex to lower right
-        for (int i = row + 1, j = col + 1; i < rows && j < cols; i++, j++) {
-            subResult.add(i * cols + j);
-        }
-        result.add(subResult);
-        subResult = new ArrayList<>();
-
-        // from seatIndex to upper right
-        for (int i = row - 1, j = col + 1; i >= 0 && j < cols; i--, j++) {
-            subResult.add(i * cols + j);
-        }
-        result.add(subResult);
-        subResult = new ArrayList<>();
-
-        // from seatIndex to lower left
-        for (int i = row + 1, j = col - 1; i < rows && j >= 0; i++, j--) {
-            subResult.add(i * cols + j);
-        }
-        result.add(subResult);
-
-        return result;
+        return List.of(wl, wr, so, su, dlo, dru, dro, dlu);
     }
 }
