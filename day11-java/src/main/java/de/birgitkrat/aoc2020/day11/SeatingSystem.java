@@ -161,41 +161,41 @@ public class SeatingSystem {
 
         int rounds = IntStream.of(row, col, rows-row, cols-col).max().getAsInt();
 
-        List<Integer> wl = new ArrayList<>();
-        List<Integer> wr = new ArrayList<>();
-        List<Integer> so = new ArrayList<>();
-        List<Integer> su = new ArrayList<>();
-        List<Integer> dlo = new ArrayList<>();
-        List<Integer> dro = new ArrayList<>();
-        List<Integer> dlu = new ArrayList<>();
-        List<Integer> dru = new ArrayList<>();
+        List<Integer> horizontalLeft = new ArrayList<>();
+        List<Integer> horizontalRight = new ArrayList<>();
+        List<Integer> verticalUp = new ArrayList<>();
+        List<Integer> verticalDown = new ArrayList<>();
+        List<Integer> diagonalLeftUp = new ArrayList<>();
+        List<Integer> diagonalRightUp = new ArrayList<>();
+        List<Integer> diagonalLeftDown = new ArrayList<>();
+        List<Integer> diagonalRightDown = new ArrayList<>();
 
         for (int i=1; i<=rounds; i++) {
             if (col-i >=0) {
-                wl.add(row * cols + (col-i));
+                horizontalLeft.add(row * cols + (col-i));
             }
             if (col+i < cols) {
-                wr.add(row * cols + (col+i));
+                horizontalRight.add(row * cols + (col+i));
             }
             if (row-i >=0) {
-                so.add((row-i) * cols + col);
+                verticalUp.add((row-i) * cols + col);
             }
             if (row+i < rows) {
-                su.add((row+i) * cols + col);
+                verticalDown.add((row+i) * cols + col);
             }
             if (col-i >= 0 && row-i >=0) {
-                dlo.add((row - i) * cols + (col - i));
+                diagonalLeftUp.add((row - i) * cols + (col - i));
             }
             if (row+i < rows && col+i < cols) {
-                dru.add((row +i) * cols + (col+i));
+                diagonalRightDown.add((row +i) * cols + (col+i));
             }
             if (row-i >=0 && col+i < cols) {
-                dro.add((row-i) * cols + (col+i));
+                diagonalRightUp.add((row-i) * cols + (col+i));
             }
             if (row+i < rows && col-i >=0) {
-                dlu.add((row+i) * cols + (col-i));
+                diagonalLeftDown.add((row+i) * cols + (col-i));
             }
         }
-        return List.of(wl, wr, so, su, dlo, dru, dro, dlu);
+        return List.of(horizontalLeft, horizontalRight, verticalUp, verticalDown, diagonalLeftUp, diagonalRightDown, diagonalRightUp, diagonalLeftDown);
     }
 }
