@@ -151,10 +151,6 @@ public class SeatingSystem {
         return result.stream().filter(si -> si != seatIndex).collect(Collectors.toList());
     }
 
-    private Integer toSeatIndex(final int i, final int k, final int cols) {
-        return i * cols + k;
-    }
-
     List<List<Integer>> findAdjacentSeatIndicesPart2(final int seatIndex, final int rows, final int cols) {
         int row = seatIndex / cols;
         int col = seatIndex - (row * cols);
@@ -172,30 +168,34 @@ public class SeatingSystem {
 
         for (int i=1; i<=rounds; i++) {
             if (col-i >=0) {
-                horizontalLeft.add(row * cols + (col-i));
+                horizontalLeft.add(toSeatIndex(row, col-i, cols));
             }
             if (col+i < cols) {
-                horizontalRight.add(row * cols + (col+i));
+                horizontalRight.add(toSeatIndex(row, col+i, cols));
             }
             if (row-i >=0) {
-                verticalUp.add((row-i) * cols + col);
+                verticalUp.add(toSeatIndex(row-i, col, cols));
             }
             if (row+i < rows) {
-                verticalDown.add((row+i) * cols + col);
+                verticalDown.add(toSeatIndex(row+i, col, cols));
             }
             if (col-i >= 0 && row-i >=0) {
-                diagonalLeftUp.add((row - i) * cols + (col - i));
+                diagonalLeftUp.add(toSeatIndex(row-i, col-i, cols));
             }
             if (row+i < rows && col+i < cols) {
-                diagonalRightDown.add((row +i) * cols + (col+i));
+                diagonalRightDown.add(toSeatIndex(row+i, col+i, cols));
             }
             if (row-i >=0 && col+i < cols) {
-                diagonalRightUp.add((row-i) * cols + (col+i));
+                diagonalRightUp.add(toSeatIndex(row-i, col+i, cols));
             }
             if (row+i < rows && col-i >=0) {
-                diagonalLeftDown.add((row+i) * cols + (col-i));
+                diagonalLeftDown.add(toSeatIndex(row+i, col-i, cols));
             }
         }
         return List.of(horizontalLeft, horizontalRight, verticalUp, verticalDown, diagonalLeftUp, diagonalRightDown, diagonalRightUp, diagonalLeftDown);
+    }
+
+    private Integer toSeatIndex(final int row, final int col, final int cols) {
+        return row * cols + col;
     }
 }
